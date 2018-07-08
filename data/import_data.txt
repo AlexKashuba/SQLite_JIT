@@ -1,0 +1,2 @@
+CREATE TABLE test (i INTEGER);
+.import ./data.txt test
