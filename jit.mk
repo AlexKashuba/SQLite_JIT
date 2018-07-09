@@ -48,7 +48,7 @@ $(SHAREDOBJ_DIR)/%.lo: $(SRC_DIR)/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(JITOBJ_DIR)/%.lo: $(JIT_DIR)/%.c
-	$(CC) -c $(CFLAGS) -DJIT -DROOT_DIR=$(ROOT_DIR) $< -o $@
+	$(CC) -c $(CFLAGS) -DJIT -DROOT_DIR=$(ROOT_DIR) -DPROJECT_DIR=$(PROJECT_ROOT) $< -o $@
 
 $(VOBJ_DIR)/%.lo: $(JIT_DIR)/%.c 
 	$(CC) -c $(CFLAGS) -DNJIT $< -o $@

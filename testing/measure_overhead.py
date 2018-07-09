@@ -16,7 +16,7 @@ logger = logging.getLogger("measure")
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("experiment", help="the experiment to run: A | B | C | all", action="store", default='general')
+    parser.add_argument("test", help="the experiment to run: A | B | C | all", action="store", default='general')
     parser.add_argument("-n", help="number of tests", action="store", type=int, default=5)
     parser.add_argument("-r", help="number of repetitions", action="store", type=int, default=5)
     parser.add_argument("--debug", help="enable debug prints", action="store_const", const=True, default=False)
@@ -31,16 +31,22 @@ def run_test(query, name):
     if args.debug:
         logger.info(command)
 
-    res=subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    res_str = res.stderr.decode('utf-8')
+    try:
+        res=subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        res_str = res.stderr.decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        print(e)
+        print(e.output)
+        exit(1)
+
     
     compile_time = '0'
     jit_ops = -1
     if name == JIT:
-        jit_ops = re.match("jitted ops: (\d+)", res_str).group(1)
+        jit_ops = int(re.match("jitted ops: (\d+)", res_str).group(1))
         res_str = re.sub('jitted ops: \d+, ', '', res_str)
 
-        compile_command = '/usr/bin/time -f "%U %S" bash -c "cc /tmp/jitted_func.c -O2 -o /tmp/dummy_obj.so -Ijitsrc -Isrc -lsqlite -L{}/lib/ -fPIC -shared"'.format(PROJECT_DIR)
+        compile_command = '/usr/bin/time -f "%U %S" bash -c "cc /tmp/jitted_func.c -O2 -o /tmp/dummy_obj.so -I{0}/src -I{0}/versions/sqlite_jit/jitsrc -lsqlite -L{0}/versions/sqlite_jit/lib/ -fPIC -shared"'.format(PROJECT_DIR)
         compile_res = subprocess.run(compile_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         compile_time = str(round(sum(map(float, compile_res.stderr.decode('utf-8').split())), 3))
 
@@ -53,7 +59,7 @@ def run_test_versions(f, n_query_tests, versions, selectivity=0):
     jit_ops = 0
 
     for version in versions:
-        res, new_jit_ops = run_test(query, vesion)
+        res, new_jit_ops = run_test(query, version)
         jit_ops = max(jit_ops, new_jit_ops)
         f.write("{},{},{}\n".format(jit_ops, res,selection))
     
@@ -83,7 +89,7 @@ def run_selectivity_tests():
         j+=1
         for repetition in range(repetitions):
             logger.info("{}/{}".format(repetition+1, repetitions))
-            run_test_versions(f, n_query_tests, versions i)
+            run_test_versions(f, n_query_tests, versions, i)
     f.close()
     print(file_name)
 

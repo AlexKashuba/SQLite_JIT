@@ -29,9 +29,9 @@
 #else
 #define DEBUG_PREP 
 #endif
-#define INCLUDES " -Ijitsrc -Isrc "
+#define INCLUDES " -I"STR(ROOT_DIR)"/jitsrc -I"STR(PROJECT_DIR)"/src "
 
-#define COMPILE_COMAND DEBUG_PREP"cc "JITSRC_PATH OPTS "-o "LIB_PATH FILE_PREFIX".so"INCLUDES"-lsqlite -L"LIB_PATH" -rpath="LIB_PATH" -fPIC -shared"
+#define COMPILE_COMAND DEBUG_PREP"cc "JITSRC_PATH OPTS "-o "LIB_PATH FILE_PREFIX".so -fPIC -shared  "INCLUDES" -Wl,-rpath,"LIB_PATH",-lsqlite,-L,"LIB_PATH
 
 pJitFunc jitLoop(Vdbe *p, int start_pos, int end_pos);
 int isJittable(Op *pOp);
