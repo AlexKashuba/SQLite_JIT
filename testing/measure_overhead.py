@@ -13,6 +13,7 @@ BASELINE = "sqlite"
 JIT_SPEC = "sqlite_jit_spec"
 BASELINE_SPEC = "sqlite_spec"
 logger = logging.getLogger("measure")
+logging.basicConfig(level=logging.INFO)
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -31,24 +32,20 @@ def run_test(query, name):
     if args.debug:
         logger.info(command)
 
-    try:
-        res=subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        res_str = res.stderr.decode('utf-8')
-    except subprocess.CalledProcessError as e:
-        print(e)
-        print(e.output)
-        exit(1)
-
+    res=subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    res_str = res.stderr.decode('utf-8')
     
     compile_time = '0'
     jit_ops = -1
-    if name == JIT:
+    try:
         jit_ops = int(re.match("jitted ops: (\d+)", res_str).group(1))
         res_str = re.sub('jitted ops: \d+, ', '', res_str)
 
         compile_command = '/usr/bin/time -f "%U %S" bash -c "cc /tmp/jitted_func.c -O2 -o /tmp/dummy_obj.so -I{0}/src -I{0}/versions/sqlite_jit/jitsrc -lsqlite -L{0}/versions/sqlite_jit/lib/ -fPIC -shared"'.format(PROJECT_DIR)
         compile_res = subprocess.run(compile_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         compile_time = str(round(sum(map(float, compile_res.stderr.decode('utf-8').split())), 3))
+    except:
+        pass
 
     res_str = res_str.strip()
     res_str = ",".join([res_str, compile_time, name])

@@ -9,7 +9,7 @@ def gen_query(n_tests=5, test_range=5, step=100, selectivity=0):
 
     if selectivity != 0:
         selectivity_test = "i<{} or".format(selectivity*ten_percent_bound)
-        command = 'echo "select count(i) from test where i<{0};" | {1}/sqlite {1}/data/test.db '
+        command = 'echo "select count(i) from test where i<{0};" | {1}/bin/sqlite {1}/data/test.db '
         command = command.format(selectivity*ten_percent_bound, PROJECT_DIR)
         res = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
         selection_n = round(int(res.stdout.decode('utf-8'))/entries*100, 3)
