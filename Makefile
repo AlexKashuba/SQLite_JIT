@@ -15,7 +15,7 @@ EXPERIMENTS = A B C
 
 experiments: $(EXPERIMENTS) 
 $(EXPERIMENTS): data/test.db #$(VERSIONS)
-	python3 testing/measure_overhead.py $@ -n 1 -r 1 | xargs python3 testing/make_plot.py $@ -f
+	python3 testing/measure_overhead.py $@ -n 10 -r 5 | xargs python3 testing/make_plot.py $@ -f
 
 data/test.db: data/data.txt 
 	$(BIN_DIR)/sqlite data/test.db < data/import_data.txt
