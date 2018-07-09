@@ -8,6 +8,7 @@ import re
 import argparse
 from matplotlib import pyplot as plt
 from pathlib import Path
+import matplotlib.ticker as ticker
 
 PROJECT_DIR = str(Path(__file__).resolve().parent.parent)
 
@@ -87,7 +88,8 @@ def make_selectivity_plot(df, y = 'total', title=''):
     ax.set(xlim=(-10,xlim_max), ylim=(0,ylim_max))
     ax.set_ylabel('CPU Time (s)')
     ax.set_xlabel('Percent of selected entries')
-    plt.legend(frameon=True)
+    #ax.yaxis.set_major_locator(ticker.MultipleLocator(2))
+    plt.legend(frameon=True, loc='lower right')
 
     return f
 

@@ -75,7 +75,7 @@ def run_general_tests(versions):
 
 def run_selectivity_tests():
     n_query_tests = 30
-    n_select_range = 10
+    n_select_range = 9
     name = "select"
     f, file_name = get_file(name)
     f.write(HEADER)
